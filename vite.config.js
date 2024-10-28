@@ -10,4 +10,7 @@ export default defineConfig({
         }),
         vue(),
     ],
+    optimizeDeps: {
+        exclude: ['@webassemblyjs/helper-numbers', '@webassemblyjs/helper-wasm-bytecode']
+    }
 });
