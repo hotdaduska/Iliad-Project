@@ -53,7 +53,7 @@ Getting Started
    Run migrations to create the database schema: <br>
    docker-compose exec app php artisan migrate <br><br>
 
-7. Start the Development Servers
+7. Start the Servers: <br>
     npm run dev
 
 9. Database Access
