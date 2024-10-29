@@ -56,7 +56,11 @@ Getting Started
     npm run dev
 
 9. Database Access
-   phpMyAdmin is available at http://localhost:8080 for ease of access and visualization, with the credentials set in the .env file.
+   phpMyAdmin is available at http://localhost:8080 for ease of access and visualization, with the credentials set in the .env file. <br>
+    User: root <br>
+    Password: secret <br>
+
+<br><br>
 
 
 Usage
