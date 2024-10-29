@@ -43,9 +43,12 @@ Getting Started
 4. Install Composer and npm Dependencies
         Run these commands inside the app and node containers to install backend and frontend dependencies: <br>
         docker-compose exec app composer install <br>
-        docker-compose exec node npm install
+        docker-compose exec node npm install <br>
+        
+5. Generate APP KEY: <br>
+    php artisan key:generate <br>
 
-5. Database Setup <br>
+6. Database Setup <br>
    Run migrations to create the database schema: <br>
    docker-compose exec app php artisan migrate <br><br>
 
