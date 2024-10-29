@@ -30,14 +30,13 @@ Route::apiResource('products', ProductController::class);
 // Order Product routes
 Route::apiResource('order-products', OrderProductController::class);
 
-// Manage products for a specific order
+// Manage products for specific order
 Route::get('orders/{order}/products', [OrderProductController::class, 'index']);
 Route::post('orders/{order}/products', [OrderProductController::class, 'store']);
 
-// New route to associate multiple products with an order
+// Associate multiple products with an order
 Route::post('orders/{order}/associate-products', [OrderProductController::class, 'associateProductsToOrder']);
 
-// Optional: You may want to adjust the update and delete routes for specific order-product relationships
 Route::put('orders/{order}/products/{product}', [OrderProductController::class, 'update']);
 Route::delete('orders/{order}/products/{product}', [OrderProductController::class, 'destroy']);
 

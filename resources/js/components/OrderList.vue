@@ -2,7 +2,6 @@
     <v-container class="mt-5">
         <v-row justify="center">
             <v-col cols="12" sm="8">
-                <!-- Add Order Button -->
                 <v-btn color="red" class="mr-4" @click="showAddOrderModal = true">
                     Add Order
                 </v-btn>
@@ -11,24 +10,21 @@
                     Add Product
                 </v-btn>
 
-                <!-- Filters Button -->
                 <v-btn color="primary" @click="toggleFilters">
                     Filters
                 </v-btn>
 
-                <!-- Collapsible Filter Box -->
+                <!-- Filter Box -->
                 <v-expand-transition>
                     <div v-if="showFilters" class="mt-3 mb-6">
                         <v-card>
                             <v-card-text>
                                 <v-row>
-                                    <!-- Name and Description Filters -->
                                     <v-col cols="6">
                                         <v-text-field v-model="filters.name" label="Filter by Name" outlined />
                                         <v-text-field v-model="filters.description" label="Filter by Description" outlined />
                                     </v-col>
 
-                                    <!-- Date Picker & Quick Date Range Buttons -->
                                     <v-col cols="6">
                                         <VueDatePicker
                                             v-model="date"
@@ -56,7 +52,7 @@
                     </div>
                 </v-expand-transition>
 
-                <!-- Loading animation -->
+                <!-- Loading -->
                 <v-progress-linear v-if="loading" indeterminate color="red"></v-progress-linear>
 
                 <!-- Data Table -->
@@ -97,7 +93,6 @@
                         <span class="text-center d-block">{{ item.order_date }}</span>
                     </template>
 
-                    <!-- Action Buttons -->
                     <template v-slot:item.actions="{ item }">
                         <div class="text-right mt-3">
                             <v-btn color="red" class="mr-3" @click="viewOrder(item.id)">View</v-btn>
@@ -106,7 +101,6 @@
                     </template>
                 </v-data-table>
 
-                <!-- Delete Confirmation Dialog -->
                 <v-dialog v-model="dialog" max-width="290">
                     <v-card>
                         <v-card-title class="headline">Confirm Delete</v-card-title>
@@ -165,17 +159,16 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
-import OrderForm from './OrderForm.vue';  // Import OrderForm component
+import OrderForm from './OrderForm.vue';
 import ProductForm from './ProductForm.vue';
 import '@vuepic/vue-datepicker/dist/main.css';
 
-// Reactive variables and state
-const showAddOrderModal = ref(false);  // Modal visibility state for Add Order
+const showAddOrderModal = ref(false);
 const showAddProductModal = ref(false);
 
 const date = ref(null);
 const orders = ref([]);
-const products = ref([]);  // Hold fetched products here
+const products = ref([]);
 const filters = reactive({ name: "", description: "", order_date_from: null, order_date_to: null, order_date: null });
 const filtersApplied = ref(false);
 const headers = ref([
@@ -185,41 +178,36 @@ const headers = ref([
     { text: "Actions", value: "actions", sortable: false },
 ]);
 const loading = ref(false);
-const loadingProducts = ref(false);  // Loading state for products
+const loadingProducts = ref(false);
 const dialog = ref(false);
 const orderIdToDelete = ref(null);
 const showFilters = ref(false);
 
 const router = useRouter();
 
-// Fetch orders function
 const fetchOrders = async () => {
     loading.value = true;
     const isDateRangeApplied = filters.order_date_from && filters.order_date_to;
     const isExactDateApplied = filters.order_date;
 
-    // Check if any filters are applied
     filtersApplied.value = filters.name || filters.description || isDateRangeApplied || isExactDateApplied;
 
-    // Prepare API request parameters
     const params = {
         name: filters.name,
         description: filters.description,
     };
 
-    // Add the date range to the params if applied
     if (isDateRangeApplied) {
         params['order_date_from'] = filters.order_date_from;
         params['order_date_to'] = filters.order_date_to;
     } else if (isExactDateApplied) {
-        // Add the exact date if applied
         params['order_date'] = filters.order_date;
     }
 
     try {
         const response = await axios.get("http://127.0.0.1:8000/api/orders", { params });
         orders.value = response.data;
-        await fetchProducts();  // Fetch products after orders are loaded
+        await fetchProducts();
     } catch (error) {
         console.error(error);
     } finally {
@@ -227,7 +215,6 @@ const fetchOrders = async () => {
     }
 };
 
-// Fetch products function (called after orders are fetched)
 const fetchProducts = async () => {
     loadingProducts.value = true;
     try {
@@ -240,7 +227,6 @@ const fetchProducts = async () => {
     }
 };
 
-// Reset filters function
 const resetFilters = () => {
     filters.name = "";
     filters.description = "";
@@ -252,18 +238,15 @@ const resetFilters = () => {
     fetchOrders();
 };
 
-// View order function
 const viewOrder = (id) => {
     router.push({ name: 'OrderDetails', params: { id } });
 };
 
-// Confirm delete function
 const confirmDelete = (id) => {
     orderIdToDelete.value = id;
     dialog.value = true;
 };
 
-// Delete order function
 const deleteOrder = async () => {
     loading.value = true;
     try {
@@ -277,7 +260,6 @@ const deleteOrder = async () => {
     }
 };
 
-// Quick date range setter
 const setQuickDateRange = (range) => {
     const today = new Date();
     let startDate;
@@ -302,7 +284,6 @@ const setQuickDateRange = (range) => {
     setDateRange([startDate, endDate]);
 };
 
-// Date range handler
 const setDateRange = (selectedDates) => {
     if (selectedDates && selectedDates.length === 2) {
         const [startDate, endDate] = selectedDates;
@@ -311,14 +292,14 @@ const setDateRange = (selectedDates) => {
             const formattedEndDate = endDate.toISOString().split('T')[0];
             filters.order_date_from = formattedStartDate;
             filters.order_date_to = formattedEndDate;
-            filters.order_date = null;  // Clear exact date
+            filters.order_date = null;
         }
     } else if (selectedDates && selectedDates.length === 1) {
         const selectedDate = selectedDates[0];
         if (selectedDate) {
             const formattedDate = selectedDate.toISOString().split('T')[0];
             filters.order_date = formattedDate;
-            filters.order_date_from = null;  // Clear date range
+            filters.order_date_from = null;
             filters.order_date_to = null;
         }
     } else {
@@ -328,24 +309,20 @@ const setDateRange = (selectedDates) => {
     }
 };
 
-// Toggle filters function
 const toggleFilters = () => {
     showFilters.value = !showFilters.value;
 };
 
-// Search and close filters function
 const searchAndClose = () => {
     fetchOrders();
     toggleFilters();
 };
 
-// Reset and close filters function
 const resetAndClose = () => {
     resetFilters();
     toggleFilters();
 };
 
-// Fetch orders on mount
 onMounted(fetchOrders);
 </script>
 
@@ -365,7 +342,6 @@ export default {
         showTooltip(content, event) {
             this.tooltip.content = content;
 
-            // Set initial tooltip position
             let tooltipTop = event.clientY - 10;
             let tooltipLeft = event.clientX + 10;
 

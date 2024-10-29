@@ -30,6 +30,6 @@ const vuetify = createVuetify({
 
 const app = createApp(App);
 app.use(router);
-app.use(vuetify); // Use Vuetify
+app.use(vuetify);
 app.component('VueDatePicker', VueDatePicker);
 app.mount('#app');

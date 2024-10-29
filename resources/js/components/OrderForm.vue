@@ -97,22 +97,22 @@ export default {
                 name: '',
                 description: '',
                 order_date: '',
-                products: [], // Assuming you might pass products for editing
+                products: [],
             }),
         },
-        products: { // Add products prop
+        products: {
             type: Array,
             required: true,
         },
     },
     data() {
         return {
-            order: { ...this.existingOrder }, // Clone the existingOrder
-            selectedProduct: {}, // This will hold the selected product object
-            quantity: 1, // Default quantity
-            addedProducts: [], // Store added products
-            isDropdownOpen: false, // State to manage dropdown visibility
-            loading: false, // You can keep this if you need loading states elsewhere
+            order: { ...this.existingOrder },
+            selectedProduct: {},
+            quantity: 1,
+            addedProducts: [],
+            isDropdownOpen: false,
+            loading: false,
             rules: {
                 required: (value) => !!value || 'Required.',
                 minLength: (value) =>
@@ -132,41 +132,38 @@ export default {
     },
     methods: {
         toggleDropdown() {
-            this.isDropdownOpen = !this.isDropdownOpen; // Toggle dropdown state
+            this.isDropdownOpen = !this.isDropdownOpen;
         },
         selectProduct(product) {
-            this.selectedProduct = product; // Set the selected product
-            this.isDropdownOpen = false; // Close dropdown after selection
+            this.selectedProduct = product;
+            this.isDropdownOpen = false;
         },
         addProduct() {
             if (!this.selectedProduct.id || this.quantity < 1) {
                 alert('Please select a product and enter a valid quantity.');
-                return; // Ensure a product is selected and quantity is valid
+                return;
             }
-            // Add the selected product with its quantity
             this.addedProducts.push({
                 id: this.selectedProduct.id,
                 name: this.selectedProduct.name,
                 quantity: this.quantity,
             });
-            // Reset selection and quantity
             this.selectedProduct = {};
-            this.quantity = 1; // Reset quantity to default
+            this.quantity = 1;
         },
         removeProduct(index) {
             this.addedProducts.splice(index, 1);
         },
         saveOrder() {
-            if (!this.$refs.form.validate()) return; // Validate form
+            if (!this.$refs.form.validate()) return;
 
-            // Additional validation for the dropdown
             if (this.addedProducts.length === 0) {
                 alert(this.rules.atLeastOne());
-                return; // Show alert if no products are selected
+                return; // alert if no products are selected
             }
 
             this.order.order_date = new Date(this.order.order_date).toISOString().split('T')[0];
-            this.order.products = this.addedProducts; // Update the order's products
+            this.order.products = this.addedProducts;
 
             const url = this.existingOrder.id
                 ? `http://127.0.0.1:8000/api/orders/${this.existingOrder.id}`
@@ -178,34 +175,31 @@ export default {
                 data: this.order,
             })
             .then(() => {
-                this.$emit('order-saved'); // Emit event after successful save
-                this.resetForm(); // Reset form after saving
+                this.$emit('order-saved');
+                this.resetForm();
                 this.$emit('close-modal');
             })
             .catch((error) => {
-                console.error('Error saving order:', error.response.data); // Log the error details
-                alert('An error occurred while saving the order.'); // Provide user feedback
+                alert('An error occurred while saving the order.');
             });
         },
         resetForm() {
-            this.order = { name: '', description: '', order_date: '', products: [] }; // Reset order form
-            this.selectedProduct = {}; // Clear selected product
-            this.quantity = 1; // Reset quantity
-            this.addedProducts = []; // Clear added products
+            this.order = { name: '', description: '', order_date: '', products: [] };
+            this.selectedProduct = {};
+            this.quantity = 1;
+            this.addedProducts = [];
         },
         handleClickOutside(event) {
             const dropdown = this.$el.querySelector('.dropdown-select');
             if (dropdown && !dropdown.contains(event.target)) {
-                this.isDropdownOpen = false; // Close dropdown if clicked outside
+                this.isDropdownOpen = false;
             }
         },
     },
     mounted() {
-        // Close dropdown when clicking outside
         window.addEventListener('click', this.handleClickOutside);
     },
     beforeDestroy() {
-        // Clean up the event listener when component is destroyed
         window.removeEventListener('click', this.handleClickOutside);
     }
 };

@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     public function index(Request $request) {
-        Log::info("This is a test log entry.");
-        // Fetch orders with filtering capabilities
         $query = Order::query();
 
         // Filter by name
@@ -33,7 +31,7 @@ class OrderController extends Controller
             $query->whereDate('order_date', $request->order_date);
         }
 
-        // Fetch the filtered orders
+        // Fetch
         $orders = $query->get();
 
         return response()->json($orders);
@@ -49,20 +47,19 @@ class OrderController extends Controller
     }
 
     public function store(Request $request) {
-        // Validate and create a new order
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255', // Allow description to be optional
+            'description' => 'nullable|string|max:255',
             'order_date' => 'required|date',
-            'products' => 'required|array', // Ensure products are provided
-            'products.*.id' => 'required|exists:products,id', // Validate each product ID
-            'products.*.quantity' => 'required|integer|min:1', // Validate quantity for each product
+            'products' => 'required|array',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
         ]);
     
-        // Create the order
+        // Create order
         $order = Order::create($validatedData);
     
-        // Attach products to the order
+        // Attach products to order
         foreach ($request->products as $product) {
             $order->products()->attach($product['id'], ['quantity' => $product['quantity']]);
         }
@@ -98,7 +95,6 @@ class OrderController extends Controller
     }
 
     public function destroy($id) {
-        // Find the order by ID and delete it
         $order = Order::findOrFail($id);
         $order->delete();
         

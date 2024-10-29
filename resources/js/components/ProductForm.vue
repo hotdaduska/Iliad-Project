@@ -1,9 +1,8 @@
 <template>
     <v-form @submit.prevent="saveProduct" ref="form">
-        <!-- Loading Indicator -->
+        <!-- Loading -->
         <v-progress-linear v-if="loading" indeterminate color="red"></v-progress-linear>
 
-        <!-- Product Name -->
         <v-text-field
             v-model="product.name"
             :rules="[rules.required, rules.minLength]"
@@ -11,7 +10,6 @@
             required
         ></v-text-field>
 
-        <!-- Product Price -->
         <v-text-field
             v-model="product.price"
             :rules="[rules.required, rules.isNumber]"
@@ -20,7 +18,6 @@
             type="number"
         ></v-text-field>
 
-        <!-- Warning Message -->
         <v-alert
             v-if="duplicateWarning"
             type="warning"
@@ -33,14 +30,14 @@
 </template>
 
 <script>
-import axios from 'axios'; // Ensure you import axios if not already done
+import axios from 'axios';
 
 export default {
     data() {
         return {
-            product: { name: '', price: '' }, // Product data
-            duplicateWarning: false, // State to manage duplicate warning
-            existingProducts: [], // Local array to store existing products
+            product: { name: '', price: '' },
+            duplicateWarning: false,
+            existingProducts: [],
             loading: false,
             rules: {
                 required: (value) => !!value || 'Required.',
@@ -51,68 +48,57 @@ export default {
         };
     },
     mounted() {
-        this.fetchExistingProducts(); // Fetch existing products on mount
+        this.fetchExistingProducts();
     },
     methods: {
         async fetchExistingProducts() {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/products');
-                // Assuming the response data is an array of products
                 this.existingProducts = response.data;
-                console.log("Fetched existing products:", this.existingProducts); // Log fetched products
             } catch (error) {
                 console.error("Error fetching existing products:", error);
             }
         },
         checkDuplicate() {
-            // Log the current product for debugging
-            console.log("Checking for duplicate:", this.product);
-
-            // Check for duplicates in the existingProducts array
             return this.existingProducts.some(product => 
                 product.name === this.product.name && 
-                parseFloat(product.price) === parseFloat(this.product.price) // Ensure both are floats
+                parseFloat(product.price) === parseFloat(this.product.price)
             );
         },
         async saveProduct() {
-            if (!this.$refs.form.validate()) return; // Validate form
-
-            // Log the state of the form before checking duplicates
-            console.log("Product form state before save:", this.product);
-
-            // Fetch the latest products before checking for duplicates
-            await this.fetchExistingProducts(); // Ensure this call is awaited
+            if (!this.$refs.form.validate()) return;
+            // Fetch latest products before checking for duplicates
+            await this.fetchExistingProducts();
 
             // Check for duplicates
             if (this.checkDuplicate()) {
-                this.duplicateWarning = true; // Show warning if duplicate
-                console.log("Duplicate detected, product will not be saved."); // Log duplicate warning
+                this.duplicateWarning = true;
                 return;
             }
 
             const newProduct = {
                 name: this.product.name,
-                price: parseFloat(this.product.price), // Ensure price is a number
+                price: parseFloat(this.product.price),
             };
 
-            const url = `http://127.0.0.1:8000/api/products`; // Adjust API endpoint as necessary
+            const url = `http://127.0.0.1:8000/api/products`;
             this.loading = true;
             
             try {
                 await axios.post(url, newProduct);
-                this.$emit('product-saved'); // Emit event after successful save
-                this.resetForm(); // Reset form after saving
-                console.log("Product saved successfully:", newProduct); // Log success
+                this.$emit('product-saved');
+                this.resetForm();
+                console.log("Product saved successfully:", newProduct);
                 this.$emit('close');
             } catch (error) {
-                console.error('Error saving product:', error.response.data); // Log the error details
-                alert('An error occurred while saving the product.'); // Provide user feedback
+                console.error('Error saving product:', error.response.data);
+                alert('An error occurred while saving the product.');
             } finally {
                 this.loading = false;
             }
         },
         resetForm() {
-            this.product = { name: '', price: '' }; // Reset product form
+            this.product = { name: '', price: '' };
         }
     },
 };

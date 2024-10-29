@@ -9,13 +9,10 @@ use App\Models\OrderProduct;
 class OrderProductController extends Controller
 {
     public function index(Request $request) {
-        // Fetch Order_Products with filtering capabilities
+        // Fetch Order_Products with filters
         $query = OrderProduct::with(['order', 'product']); 
 
-        // Debugging the initial query
-        dump("Initial Query", $query->toSql());
-
-        // Filter by order name (from orders table)
+        // Filter by order name
         if ($request->has('order_name')) {
             $query->whereHas('order', function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->order_name . '%');
@@ -23,7 +20,7 @@ class OrderProductController extends Controller
             dump("Filtering by order name:", $request->order_name);
         }
 
-        // Filter by product name (from products table)
+        // Filter by product name
         if ($request->has('product_name')) {
             $query->whereHas('product', function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->product_name . '%');
@@ -31,7 +28,7 @@ class OrderProductController extends Controller
             dump("Filtering by product name:", $request->product_name);
         }
 
-        // Filter by description (from orders table)
+        // Filter by description
         if ($request->has('description')) {
             $query->whereHas('order', function($q) use ($request) {
                 $q->where('description', 'like', '%' . $request->description . '%');
@@ -39,7 +36,7 @@ class OrderProductController extends Controller
             dump("Filtering by description:", $request->description);
         }
 
-        // Filter by order date (from orders table)
+        // Filter by order date
         if ($request->has('order_date_from') && $request->has('order_date_to')) {
             $query->whereHas('order', function($q) use ($request) {
                 $q->whereBetween('order_date', [$request->order_date_from, $request->order_date_to]);
@@ -55,14 +52,11 @@ class OrderProductController extends Controller
             dump("Filtering by exact order date:", $request->order_date);
         }
 
-        // Execute the query and paginate results
         $result = $query->paginate(10);
-        dd("Paginated Results:", $result); // Output the final results
     }
 
     public function show($id) {
         $orderProduct = OrderProduct::with(['order', 'product'])->findOrFail($id);
-        dd("Showing OrderProduct:", $orderProduct); // Debug output
         return response()->json($orderProduct);
     }
 
@@ -73,16 +67,12 @@ class OrderProductController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        dump("Incoming data for store:", $request->all()); // Debugging incoming request data
-
         $orderProduct = OrderProduct::create($request->only(['order_id', 'product_id', 'quantity']));
-        dd("OrderProduct created:", $orderProduct); // Debug output
         return response()->json($orderProduct, 201);
     }
 
     public function update(Request $request, $id)
     {
-        // Validate incoming request
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -91,9 +81,7 @@ class OrderProductController extends Controller
             'removedProducts' => 'array'
         ]);
 
-        dump("Incoming data for update:", $request->all()); // Debugging incoming request data
-
-        // Find the order
+        // Find order
         $order = Order::findOrFail($id);
         
         // Update order properties
@@ -102,20 +90,16 @@ class OrderProductController extends Controller
         $order->order_date = $request->order_date;
         $order->save();
 
-        dump("Order updated:", $order); // Debug output after updating order
-
-        // Sync products (this will handle both adding and updating quantities)
+        // Sync products (adding & updating)
         $products = collect($request->products)->mapWithKeys(function ($product) {
             return [$product['id'] => ['quantity' => $product['quantity']]];
         });
         
-        dump("Syncing products:", $products); // Debug output
         $order->products()->sync($products);
 
         // Remove products specified in removedProducts
         if ($request->has('removedProducts') && is_array($request->removedProducts)) {
             $order->products()->detach(collect($request->removedProducts)->pluck('id')->toArray());
-            dump("Removed products:", $request->removedProducts); // Debug output
         }
 
         return response()->json(['message' => 'Order updated successfully!']);
@@ -141,8 +125,6 @@ class OrderProductController extends Controller
             'products.*.quantity' => 'required|integer|min:1',
         ]);
 
-        dump("Associating products to order:", $request->products); // Debugging incoming request data
-
         foreach ($request->products as $product) {
             OrderProduct::create([
                 'order_id' => $orderId,
@@ -150,8 +132,7 @@ class OrderProductController extends Controller
                 'quantity' => $product['quantity'],
             ]);
         }
-
-        dump("Products associated with order:", ['orderId' => $orderId, 'products' => $request->products]); // Debug output
+        
         return response()->json(['message' => 'Products associated with order successfully.'], 201);
     }
 }

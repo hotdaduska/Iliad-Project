@@ -74,7 +74,7 @@
                             </ul>
                         </div>
 
-                        <!-- Quantity Input for new products -->
+                        <!-- Quantity Input -->
                         <v-text-field
                             v-model="quantity"
                             :rules="[rules.required]"
@@ -85,7 +85,7 @@
                             class="mt-3"
                         ></v-text-field>
 
-                        <!-- Button to Add Another Product -->
+                        <!-- Add Another Product Button -->
                         <v-btn @click="addProduct" color="primary" class="mb-5">Add Product</v-btn>
 
                         <div v-if="addedProducts.length">
@@ -119,13 +119,12 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 
-// Define reactive state variables
 const order = ref({});
 const Products = ref([]);
 const editedOrder = ref({ name: '', description: '' });
 const originalAddedProducts = ref([]);
 const addedProducts = ref([]); 
-const removedProducts = ref([]); // Track removed products
+const removedProducts = ref([]);
 const editDialog = ref(false);
 const selectedProduct = ref({}); 
 const quantity = ref(1); 
@@ -144,7 +143,7 @@ const rules = {
 const route = useRoute();
 const router = useRouter();
 
-// Fetch order details including products with quantity
+// Fetch order details (including products with quantity)
 const fetchOrderDetails = async () => {
     try {
         const response = await axios.get(`http://127.0.0.1:8000/api/orders/${route.params.id}`);
@@ -182,7 +181,6 @@ onMounted(() => {
     fetchOrderDetails();
 });
 
-// Navigation methods
 const goBack = () => {
     router.push({ name: 'OrderList' });
 };
@@ -196,7 +194,6 @@ const closeEditModal = () => {
     addedProducts.value = JSON.parse(JSON.stringify(originalAddedProducts.value)); // Reset to original products
 };
 
-// Save changes made in the edit order modal
 const saveChanges = async () => {
     loading.value = true;
     try {
@@ -204,16 +201,16 @@ const saveChanges = async () => {
             name: editedOrder.value.name,
             description: editedOrder.value.description,
             order_date: editedOrder.value.order_date,
-            products: addedProducts.value.map(product => ({ id: product.id, quantity: product.quantity })), // Send updated quantities
-            removedProducts: removedProducts.value // Send removed products
+            products: addedProducts.value.map(product => ({ id: product.id, quantity: product.quantity })),
+            removedProducts: removedProducts.value
         });
-        removedProducts.value = []; // Clear removed products after save
-        await fetchOrderDetails(); // Refresh order details
+        removedProducts.value = [];
+        await fetchOrderDetails();
     } catch (error) {
         console.error('Error saving changes:', error);
     } finally {
         loading.value = false;
-        editDialog.value = false; // Close the modal
+        editDialog.value = false;
     }
 };
 
@@ -244,16 +241,16 @@ const updateAddedProductQuantity = (product) => {};
 // Remove a product from the order
 const removeProduct = (index) => {
     const productToRemove = addedProducts.value[index];
-    removedProducts.value.push(productToRemove);  // Push to removedProducts
-    addedProducts.value.splice(index, 1); // Remove from addedProducts
+    removedProducts.value.push(productToRemove);
+    addedProducts.value.splice(index, 1);
 };
 
-// Toggle the dropdown
+// Toggle dropdown
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
 };
 
-// Select a product from the dropdown
+// Select a product from dropdown
 const selectProduct = (product) => {
     selectedProduct.value = product;
     isDropdownOpen.value = false;

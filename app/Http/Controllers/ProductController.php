@@ -10,18 +10,18 @@ class ProductController extends Controller
     // Fetch all products
     public function index()
     {
-        $products = Product::all(); // Fetch all products
+        $products = Product::all();
         return response()->json($products);
     }
 
     // Fetch a single product by ID
     public function show($id)
     {
-        $product = Product::findOrFail($id); // Fetch product by ID
+        $product = Product::findOrFail($id);
         return response()->json($product);
     }
 
-    // Create a new product
+    // Create new product
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -29,36 +29,36 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
         ]);
 
-        $product = Product::create($validatedData); // Create new product
-        return response()->json($product, 201); // Return newly created product
+        $product = Product::create($validatedData);
+        return response()->json($product, 201);
     }
 
-    // Update a product
+    // Update product
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id); // Find product by ID
+        $product = Product::findOrFail($id);
 
         $validatedData = $request->validate([
             'name' => 'string|max:255',
             'price' => 'numeric|min:0',
         ]);
 
-        $product->update($validatedData); // Update product with new data
-        return response()->json($product); // Return updated product
+        $product->update($validatedData);
+        return response()->json($product);
     }
 
-    // Delete a product
+    // Delete product
     public function destroy($id)
     {
-        $product = Product::findOrFail($id); // Find product by ID
-        $product->delete(); // Delete the product
-        return response()->json(null, 204); // Return success response
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return response()->json(null, 204);
     }
 
-    // Fetch products for a specific order
+    // Fetch products for specific order
     public function productsForOrder($orderId)
     {
-        $products = Product::all(); // Adjust this if you want to filter products specific to the order
+        $products = Product::all();
         return response()->json($products);
     }
 }
