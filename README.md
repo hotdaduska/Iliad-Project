@@ -5,6 +5,10 @@
 About the Project <br>
 The Order Management System is a web application built to manage daily user orders with features for viewing, creating, editing, and deleting orders and products. Built using a Vue.js frontend and a Laravel backend, the application uses MySQL for data storage and is containerized with Docker for easy deployment.
 
+API Documentation also at: <br>
+/docs/api <br> (http://localhost:8000/docs/api#/) <br><br><br>
+
+
 Features
 Order Management: Create, view, update, and delete orders.
 Product Management: Add and manage products associated with orders.
