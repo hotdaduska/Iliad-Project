@@ -44,6 +44,7 @@ Getting Started
         Run these commands inside the app and node containers to install backend and frontend dependencies: <br>
         docker-compose exec app composer install <br>
         docker-compose exec node npm install <br>
+        npm install <br>
         
 5. Generate APP KEY: <br>
     php artisan key:generate <br>
