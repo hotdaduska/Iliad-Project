@@ -53,8 +53,9 @@ Getting Started
    docker-compose exec app php artisan migrate <br><br>
 
 7. Start the Development Servers
+    npm run dev
 
-8. Database Access
+9. Database Access
    phpMyAdmin is available at http://localhost:8080 for ease of access and visualization, with the credentials set in the .env file.
 
 
